@@ -31,14 +31,16 @@ export default defineCommand({
 			"[Bun](https://bun.sh/)",
 			"[Postgres](https://www.postgresql.org/)",
 			"[Redis](https://redis.io/)",
-			"[disocrd.js](https://discord.js.org/)",
+			"[discord.js](https://discord.js.org/)",
 			"[Shoukaku](https://github.com/shipgirlproject/Shoukaku/)",
 			"[lavalink](https://github.com/lavalink-devs/Lavalink/)",
 		];
 
 		const container = defContainer().addTextDisplayComponents(
 			TextDisplay("### About Eleven"),
-
+			TextDisplay(
+				"Eleven is a [open source](https://github.com/openUwU/eleven) Discord bot made by [OpenUwU](https://github.com/openUwU) and [mooncarli](https://github.com/mooncarli).",
+			),
 			TextDisplay(
 				`- **Bot Info**\n>>> -# \`${ctx.client.guilds.cache.size}\` servers\n-# Last restart: ${time(Math.floor(readyAt.getTime() / 1000), TimestampStyles.RelativeTime)}\n-# \`${rss}MB\` RSS\n-# \`${heapUsed}MB\` heap used`,
 			),
