@@ -72,6 +72,15 @@ cp .env.example .env
 | `PREMIUM_WEBHOOK_SECRET`| Secret key for premium webhooks |
 | `backupWebhook` | Discord webhook URL for database backup notifications |
 
+### Emoji Server
+
+To display the bot's custom emojis:
+
+1. [Join the Emoji Server](https://discord.gg/Mpkup6xwNh).
+2. Run `ax invite <client_id>` in the server, replacing `<client_id>` with your bot's client ID.
+3. Click the invite link provided by the bot.
+4. Add your bot to the Emoji Server.
+
 ### 3. Run Database Migrations
 
 Apply pending SQL schema migrations to your PostgreSQL database:
