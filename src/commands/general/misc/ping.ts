@@ -31,16 +31,8 @@ export default defineCommand({
 		await redis.ping();
 		const redisLatency = Date.now() - redisStart;
 
-		const rttKey = `ping:rtt:${ctx.user.id}`;
-		const redisRttStart = Date.now();
-		await redis.setex(rttKey, 10, "pong");
-		await redis.del(rttKey);
-		const redisRtt = Date.now() - redisRttStart;
 		await ctx.editReply({
-			content: [
-				`>>> **Bot Latency**: ${botLatency}ms`,
-				`**Redis**: ${redisLatency}ms *(RTT: ${redisRtt}ms)*`,
-			].join("\n"),
+			content: [`>>> **Bot Latency**: ${botLatency}ms`, `**Redis**: ${redisLatency}ms `].join("\n"),
 		});
 	},
 });
