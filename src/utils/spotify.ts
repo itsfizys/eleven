@@ -5,7 +5,7 @@
  * github.com/openUwU/
  */
 
-const SPOTIFY_API = "";
+const SPOTIFY_API = "https://sp-pl-bread.vercel.app/api/3";
 
 export class SpotifyNotFoundError extends Error {
 	constructor(spotifyId: string) {
