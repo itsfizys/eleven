@@ -11,7 +11,7 @@ import type { Player } from "./Player.js";
 import type { PartialQueueTrack, QueueTrack, TrackRequester } from "./types.js";
 import { SearchSource } from "./types.js";
 
-const REC_API = "";
+const REC_API = "https://sp-pl-bread.vercel.app/api/2";
 const LIMIT = 2;
 const REC_POOL_SIZE = 10;
 const YT_POOL_SIZE = 6;
