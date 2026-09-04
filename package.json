@@ -1,8 +1,10 @@
 {
 	"name": "eleven",
 	"version": "3.0.1",
-	"description": "A simple handler for a discord bot",
+	"description": "A Discord bot for music.",
 	"type": "module",
+	"license": "OUSL-1.0",
+	"author": "OpenUWU",
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc",

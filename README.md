@@ -1,6 +1,9 @@
 # Eleven
 
-A feature-rich, high-performance Discord music bot  built with **TypeScript**, **discord.js v14**, **Shoukaku** (Lavalink), **PostgreSQL**, and **Redis**.
+[![CI](https://github.com/openUwU/eleven/actions/workflows/ci.yml/badge.svg)](https://github.com/openUwU/eleven/actions/workflows/ci.yml)
+[![Release](https://github.com/openUwU/eleven/actions/workflows/release.yml/badge.svg)](https://github.com/openUwU/eleven/actions/workflows/release.yml)
+
+A feature-rich, high-performance Discord music bot built with **TypeScript**, **discord.js v14**, **Shoukaku** (Lavalink), **PostgreSQL**, and **Redis**.
 
 Featuring hybrid sharding, audio filters, custom playlist management, autoplay, 24/7 mode, and Spotify integration.
 
@@ -23,11 +26,13 @@ Featuring hybrid sharding, audio filters, custom playlist management, autoplay, 
 
 Before running the bot, ensure you have:
 
-- [Node.js](https://nodejs.org/) `>= 20.0.0` (or [Bun](https://bun.sh/))
+- [Node.js](https://nodejs.org/) `>= 20.0.0`
 - [PostgreSQL](https://www.postgresql.org/) 16+
 - [Redis](https://redis.io/) 7+
 - A running [Lavalink v4](https://github.com/lavalink-devs/Lavalink) node
 - A [Discord Bot Application](https://discord.com/developers/applications) with bot token & client ID
+
+> Using the [Docker setup](#docker-setup) below? Postgres and Redis are provided by Compose — you only need Node.js locally if you're running outside Docker. A Lavalink node is required either way; Compose doesn't run one for you.
 
 ---
 
@@ -97,14 +102,25 @@ npm run start
 
 ## Docker Setup
 
-You can deploy the entire stack (PostgreSQL, Redis, migrations, Portainer, and bot) using Docker Compose:
+You can run the entire stack (PostgreSQL, Redis, migrations, the bot, and Portainer for management) with Docker Compose — no local Node/Postgres/Redis install needed, just Docker.
 
-1. Update `.env` with your desired database credentials and bot configuration.
-2. Run:
+1. Fill in `.env` with your database credentials and bot config (same variables as above).
+2. Start everything:
 
 ```bash
 docker compose up -d
 ```
+
+This spins up:
+
+| Service | What it does |
+| :--- | :--- |
+| `pg` | PostgreSQL 16, with a persisted volume |
+| `redis` | Redis 7, password-protected |
+| `migrate` | Runs `npm run migrate` once against `pg`, then exits |
+| `eleven` | Installs deps and runs the bot itself, on port `6969` |
+
+Note: `eleven` and `migrate` bind-mount the repo and run `npm install && npm run build && npm run start` on container start rather than baking a prebuilt image — so the first boot takes a little longer while it installs, and container restarts re-run install/build against whatever is in your working tree.
 
 ---
 
@@ -145,6 +161,20 @@ docker compose up -d
 ## License & Attribution
 
 This project is licensed under the **OpenUwU Source-Available License (OUSL) v1**. See the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## Reporting Bugs
+
+Bugs are tracked as [GitHub issues](https://github.com/openUwU/eleven/issues) — use the bug report template so we get the repro steps and version up front.
+
+## Contributors 
+
+<a href="https://github.com/openUwU/eleven/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=openUwU/eleven" />
+</a>
 
 ### Credits
 - **Created by**: [@mooncarli](https://github.com/mooncarli), [@bre4d777](https://github.com/bre4d777), [@dev-prayag](https://github.com/dev-prayag), and [OpenUwU](https://github.com/openUwU) Contributors.
