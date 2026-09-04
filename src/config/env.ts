@@ -5,7 +5,18 @@
  * github.com/openUwU/
  */
 
+import { existsSync } from "node:fs";
+import { loadEnvFile } from "node:process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { z } from "zod";
+
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const envFilePath = path.join(projectRoot, ".env");
+
+if (existsSync(envFilePath)) {
+	loadEnvFile(envFilePath);
+}
 
 const envSchema = z.object({
 	DISCORD_TOKEN: z.string().min(1),
