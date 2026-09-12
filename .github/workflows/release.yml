@@ -19,8 +19,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
-      - run: zip -r dist.zip README.md .env.example package.json package-lock.json dist
+      - run: zip -r eleven.zip README.md .env.example package.json package-lock.json dist
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist.zip
+          files: eleven.zip
           generate_release_notes: true
