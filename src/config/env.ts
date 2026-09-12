@@ -6,9 +6,7 @@
  */
 
 import { z } from "zod";
-import { loadProjectEnv } from "./loadEnvFile.js";
-
-loadProjectEnv();
+process.loadEnvFile(".env");
 
 const envSchema = z.object({
 	DISCORD_TOKEN: z.string().min(1),
