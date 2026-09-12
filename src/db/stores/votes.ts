@@ -5,6 +5,7 @@
  * github.com/openUwU/
  */
 
+import { config } from "../../config/config.js";
 import { BaseStore } from "../store.js";
 
 export interface UserVoteRow {
@@ -130,6 +131,7 @@ export async function recordVote(input: RecordVoteInput): Promise<UserVote> {
 
 export async function hasVotedRecently(discordUserId: string): Promise<boolean> {
 	const vote = await userVoteStore.get(discordUserId);
+	if (!config.voteEnabled) return true;
 	if (!vote?.expiresAt) return false;
 	return vote.expiresAt.getTime() > Date.now();
 }
@@ -141,6 +143,13 @@ export async function getVoteStatus(discordUserId: string): Promise<{
 	readonly voteCount: number;
 }> {
 	const vote = await userVoteStore.get(discordUserId);
+	if (!config.voteEnabled)
+		return {
+			hasVoted: true,
+			lastVotedAt: null,
+			expiresAt: null,
+			voteCount: 0,
+		};
 	const hasVoted = vote?.expiresAt != null && vote.expiresAt.getTime() > Date.now();
 	return {
 		hasVoted,

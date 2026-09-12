@@ -17,6 +17,7 @@ export const config = {
 	redisUrl: env.REDIS_URL,
 	postgresUrl: env.POSTGRES_URL,
 	ownerIds: ["931059762173464597"] as string[],
+	voteEnabled: env.VOTE_ENABLED,
 	colors: {
 		default: 0xffffe8,
 		success: 0x2ecc71,

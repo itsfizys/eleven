@@ -18,6 +18,7 @@ const envSchema = z.object({
 		.refine((v) => v.startsWith("redis://") || v.startsWith("rediss://"), {
 			message: 'Must start with "redis://" or "rediss://"',
 		}),
+	VOTE_ENABLED: z.boolean().default(false),
 	POSTGRES_URL: z.string().min(1).startsWith("postgres"),
 	LAVALINK_HOST: z.string().min(1),
 	LAVALINK_PORT: z.coerce.number().int().positive(),

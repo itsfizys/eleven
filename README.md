@@ -71,6 +71,7 @@ cp .env.example .env
 | `TOPGG_WEBHOOK_SECRET` | Secret key for Top.gg vote webhooks |
 | `PREMIUM_WEBHOOK_SECRET`| Secret key for premium webhooks |
 | `backupWebhook` | Discord webhook URL for database backup notifications |
+| `VOTE_ENABLED` | Set to `true` to enable vote checks from top.gg |
 
 ### Emoji Server
 
