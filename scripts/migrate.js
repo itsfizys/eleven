@@ -4,8 +4,8 @@
  * github.com/openUwU/
  *
  * Usage:
- *   bun run scripts/migrate.ts        # apply all pending migrations
- *   bun run scripts/migrate.ts --dry  # print SQL without touching PG
+ *   node scripts/migrate.js        # apply all pending migrations
+ *   node scripts/migrate.js --dry  # print SQL without touching PG
  *
  * Naming convention: NNN_description.sql (e.g. 001_init.sql)
  * Files are applied in lexicographic order and never re-applied.
@@ -13,33 +13,41 @@
  */
 
 import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { loadEnvFile } from "node:process";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const SCHEMA_DIR = join(__dirname, "../src/db/schema");
-const DRY = process.argv.includes("--dry");
+const projectRoot = fileURLToPath(new URL("../", import.meta.url));
+const envFilePath = join(projectRoot, ".env");
+const schemaDirectory = join(projectRoot, "src/db/schema");
+const dryRun = process.argv.includes("--dry");
+
+if (existsSync(envFilePath)) {
+	loadEnvFile(envFilePath);
+}
 
 const ESC = "\x1b";
 const CLR = `${ESC}[0m`;
 const log = {
-	info: (msg: string) => console.log(`${ESC}[36m[migrate] ${msg}${CLR}`),
-	success: (msg: string) => console.log(`${ESC}[32m[migrate] ${msg}${CLR}`),
-	warn: (msg: string) => console.warn(`${ESC}[33m[migrate] ${msg}${CLR}`),
-	error: (msg: string) => console.error(`${ESC}[31m[migrate] ${msg}${CLR}`),
-	dim: (msg: string) => console.log(`${ESC}[90m${msg}${CLR}`),
+	info: (msg) => console.log(`${ESC}[36m[migrate] ${msg}${CLR}`),
+	success: (msg) => console.log(`${ESC}[32m[migrate] ${msg}${CLR}`),
+	warn: (msg) => console.warn(`${ESC}[33m[migrate] ${msg}${CLR}`),
+	error: (msg) => console.error(`${ESC}[31m[migrate] ${msg}${CLR}`),
+	dim: (msg) => console.log(`${ESC}[90m${msg}${CLR}`),
 };
 
-function sha256(content: string): string {
+function sha256(content) {
 	return createHash("sha256").update(content, "utf-8").digest("hex");
 }
 
-async function main(): Promise<void> {
+async function main() {
 	if (!process.env.POSTGRES_URL) {
-		log.error("DATABASE_URL is not set. Aborting.");
-		process.exit(1);
+		log.error("POSTGRES_URL is not set. Aborting.");
+		process.exitCode = 1;
+		return;
 	}
 
 	const pool = new pg.Pool({ connectionString: process.env.POSTGRES_URL });
@@ -59,17 +67,18 @@ async function main(): Promise<void> {
 				ADD COLUMN IF NOT EXISTS content_hash TEXT NOT NULL DEFAULT ''
 		`);
 
-		const { rows } = await client.query<{
-			filename: string;
-			content_hash: string;
-		}>("SELECT filename, content_hash FROM _migrations ORDER BY filename");
-		const applied = new Map(rows.map((r) => [r.filename, r.content_hash]));
+		const { rows } = await client.query(
+			"SELECT filename, content_hash FROM _migrations ORDER BY filename",
+		);
+		const applied = new Map(rows.map((row) => [row.filename, row.content_hash]));
 
-		const allFiles = (await readdir(SCHEMA_DIR)).filter((f) => f.endsWith(".sql")).sort();
+		const allFiles = (await readdir(schemaDirectory))
+			.filter((filename) => filename.endsWith(".sql"))
+			.sort();
 
 		for (const filename of allFiles) {
 			if (applied.has(filename)) {
-				const hash = sha256(await readFile(join(SCHEMA_DIR, filename), "utf-8"));
+				const hash = sha256(await readFile(join(schemaDirectory, filename), "utf-8"));
 				if (applied.get(filename) !== hash) {
 					log.warn(
 						`${filename} has been modified after being applied — create a new migration file instead of editing an existing one.`,
@@ -78,7 +87,7 @@ async function main(): Promise<void> {
 			}
 		}
 
-		const pending = allFiles.filter((f) => !applied.has(f));
+		const pending = allFiles.filter((filename) => !applied.has(filename));
 
 		if (pending.length === 0) {
 			log.info("No pending migrations. Database is up to date.");
@@ -86,15 +95,15 @@ async function main(): Promise<void> {
 		}
 
 		log.info(`Pending: ${pending.join(", ")}`);
-		if (DRY) log.warn("--dry mode: no changes will be made.");
+		if (dryRun) log.warn("--dry mode: no changes will be made.");
 
 		for (const filename of pending) {
-			const sql = await readFile(join(SCHEMA_DIR, filename), "utf-8");
+			const sql = await readFile(join(schemaDirectory, filename), "utf-8");
 			const hash = sha256(sql);
 
 			log.info(`Applying ${filename}…`);
 
-			if (DRY) {
+			if (dryRun) {
 				log.dim(sql.trim());
 				continue;
 			}
@@ -116,14 +125,14 @@ async function main(): Promise<void> {
 			}
 		}
 
-		if (!DRY) log.success(`Done. Applied ${pending.length} migration(s).`);
+		if (!dryRun) log.success(`Done. Applied ${pending.length} migration(s).`);
 	} finally {
 		client.release();
 		await pool.end();
 	}
 }
 
-main().catch((err: Error) => {
-	log.error(err.message);
-	process.exit(1);
+main().catch((err) => {
+	log.error(err instanceof Error ? err.message : String(err));
+	process.exitCode = 1;
 });

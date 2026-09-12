@@ -92,7 +92,7 @@ npm run migrate
 
 Optional preview without applying:
 ```bash
-npx tsx --env-file=.env scripts/migrate.ts --dry
+npm run migrate -- --dry
 ```
 
 ### 4. Run the Bot
